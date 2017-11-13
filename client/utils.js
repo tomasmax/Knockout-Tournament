@@ -9,7 +9,8 @@ var KnockoutTournament = KnockoutTournament || {};
     KnockoutApp.Constants.MESSAGES = {
         APP_ERROR: "AppError",
         NETWORK_ERROR: "Network Error: Status ",
-        UNKNOWN_ERROR: "Unknown Error"
+        UNKNOWN_ERROR: "Unknown Error",
+        INVALIDTOURNAMENT_ID: "The Tournament ID is not valid",
     };
 
     // App errors

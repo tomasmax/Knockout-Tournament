@@ -14,7 +14,9 @@ var KnockTournament = KnockTournament || {};
     };
 
     const HTTP_STATUS_CODES = {
-        OK: 200
+        OK: 200,
+        SERVER_ERROR: 500,
+        CLIENT_ERROR: 400
     };
 
     let TournamentError = KnockTournament.AppError;
@@ -49,7 +51,7 @@ var KnockTournament = KnockTournament || {};
         // Creates a tournament and gets the first round's matches
         createTournament() {
             
-            return new Promise(async (resolve, reject) => {
+            return new Promise( async (resolve, reject) => {
 
                 try {
 
@@ -62,25 +64,94 @@ var KnockTournament = KnockTournament || {};
                     let responseJSON = await tournamentData.json();
                     this._tournamentId = responseJSON.tournamentId;
 
-                    // if HTTP status code not 200 reject
+                    // if HTTP status code is not 200 reject
                     if (tournamentData.status !== HTTP_STATUS_CODES.OK) {
-                        let message = TournamentManager._getNetworkErrorMessage(
+                        let errorMessage = TournamentManager._getNetworkErrorMessage(
                             tournamentData, responseJSON
                         );
 
-                        return reject(new TournamentError(message));
+                        return reject(new TournamentError(errorMessage));
                     }
 
                     // everything OK, resolve promise returning mathUps from the JSON
                     return resolve(responseJSON.matchUps);
 
-                } catch (exception) {
+                } catch(exception) {
                     return reject(new TournamentError(MESSAGES.UNKNOWN_ERROR, exception.stack));
                 }
             });
         }
 
-        
+        // gets match data, match score
+        getMatchData(round, match) {
+
+            return new Promise( async (resolve, reject) => {
+
+                try {
+                    if (this._tournamentId == null) {
+                        return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
+                    }
+
+                    let matchData = await this.httpRequestManager.get(REQUEST_URL.MATCH, {
+                        tournamentId: this._tournamentId,
+                        round: round,
+                        match: match
+                    });
+
+                    let matchJSON = await matchData.json();
+
+                    // if HTTP status code is not 200 reject
+                    if (matchData.status !== HTTP_STATUS_CODES.OK) {
+                        let errorMessage = TournamentManager._getNetworkErrorMessage(
+                            matchData, matchJSON
+                        );
+
+                        return reject(new TournamentError(errorMessage));
+                    }
+
+                    return resolve(matchJSON.json());
+
+                } catch(exception) {
+                    return reject(new TournamentError(MESSAGES.UNKNOWN_ERROR, exception.stack));
+                }
+
+            });
+        }
+
+        // get team data
+        getTeamData(teamId) {
+
+            return new promise( async (resolve, reject) => {
+                try {
+
+                    if (this._tournamentId == null) {
+                        return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
+                    }
+
+                    let teamData = await this.httpRequestManager.get(REQUEST_URL.TEAM, {
+                        tournamentId: this._tournamentId,
+                        teamId: teamId
+                    });
+
+                    let teamJSON = await teamdData.json();
+
+                    if (teamdData.status !== HTTP_STATUS_CODES.OK) {
+                        let errorMessage = TournamentManager._getNetworkErrorMessage(
+                            teamdData, teamJSON
+                        );
+
+                        return reject(new TournamentError(errorMessage));
+                    }
+
+                    return resolve(teamJSON);
+
+                } catch (exception) {
+                    return reject(new TournamentError(MESSAGES.UNKNOWN_ERROR, exception.stack));
+                }
+
+            });
+        }
+
     }
     
 })(KnockTournament);
