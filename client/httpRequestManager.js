@@ -3,7 +3,7 @@
 var KnockoutTournament = KnockoutTournament || {};
 
 (function (KnockoutTournament) {
-    KnockoutTournament.RequestHandler = class httpRequestManager {
+    KnockoutTournament.httpRequestManager = class httpRequestManager {
 
         // http get request
         static get(url, params) {

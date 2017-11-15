@@ -152,6 +152,95 @@ var KnockTournament = KnockTournament || {};
             });
         }
 
+       // Gets the winning score of a match.
+       async getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback) {
+           
+            return Promise( async (resolve, reject) => {
+                
+                try {
+
+                    if (this._tournamentId == null) {
+                        return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
+                    }
+
+                    let matchWinningData = await this.httpRequestManager.get(REQUEST_URL.WINNER, {
+                        tournamentId: this._tournamentId,
+                        teamScores: await teamScores,
+                        matchScores: await matchScores
+                    });
+
+                    let matchWinningDataJSON = winningData.json();
+
+                    if (winningData.status !== HTTP_STATUS_CODES.OK) {
+                        let errorMessage = TournamentManager._getNetworkErrorMessage(
+                            teamdData, teamJSON
+                        );
+
+                        return reject(new TournamentError(errorMessage));
+                    }
+
+                    if (finishedMatchCallback) {
+                        finishedMatchCallback();
+                    }
+
+                    return resolve(matchWinningDataJSON.score)
+
+                } catch (exception) {
+                    return reject(new TournamentError(MESSAGES.UNKNOWN_ERROR, exception.stack));
+                }
+
+            });
+       }
+
+       // get team scores of a match using promises and populates teamMap to generate next round
+       async getTeamScores(teamIds) {
+
+           let teamPromiseList = [];
+           let teamScoreList = [];
+
+           teamsIds.forEach(teamId => {
+               if (!this._teamsMap.hasOwnProperty(teamId)) {
+                   teamPromiseList.push(this.getTeamData(teamId))
+               } else {
+                   teamScoreList.push(this._teamsMap[teamId].score);
+               }
+           });
+
+           // wait till all the promises in the list are resolved
+           (await Promise.all(teamPromiseList)).forEach(team => {
+               teamScoreList.push(team.score);
+               this._teamsMap[team.teamId] = team
+           });
+
+           return teamScoreList;
+       }
+
+       // get winning scores asynchronously partially
+       async getMatchWinnerScore(round, matches, finishedMatchCallback) {
+
+           let winnersList = [];
+
+           for (let i = 0; i < matches.length; i = i + 11) {
+               let asyncWinnerList = await this.getWinnersAsyncList(i, round, matches, finishedMatchCallback);
+               winnersList = winnersList.concat(asyncWinnerList);
+           }
+
+           return winnersList;
+
+       }
+
+       // gets a portion of Winners asynchronously
+       async getWinnersAsyncList(index, round, matches, finishedMatchCallback) {
+
+           let winnersPromiseList = [];
+
+           for (let i=index; k < i + 11 && k < matches.length; j++) {
+               let teamScores = this.getTeamScores(matches[i].teamIds);
+               let matchScore = this.getMatchData(round, matches[i]);
+               winnersPromiseList .push(this.getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback));
+           }
+       }
+
     }
     
 })(KnockTournament);
