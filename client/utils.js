@@ -11,6 +11,7 @@ var KnockoutTournament = KnockoutTournament || {};
         NETWORK_ERROR: "Network Error: Status ",
         UNKNOWN_ERROR: "Unknown Error",
         INVALIDTOURNAMENT_ID: "The Tournament ID is not valid",
+        ROUND: "Simulating Round: "
     };
 
     // App errors

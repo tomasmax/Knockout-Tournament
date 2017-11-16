@@ -44,7 +44,7 @@ var KnockoutTournament = KnockoutTournament || {};
 
         setWinner(winner) {
 
-            this.winnerElement.textContent = '${winner} is the Winner.';
+            this.winnerElement.textContent = `${winner} is the Winner.`;
         }
         
         getTournamentMatches() {

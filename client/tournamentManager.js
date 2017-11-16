@@ -48,7 +48,7 @@ var KnockTournament = KnockTournament || {};
 
         }
 
-        // Creates a tournament and gets the first round's matches
+        // Creates a tournament and gets first round matchUps
         createTournament() {
             
             return new Promise( async (resolve, reject) => {
@@ -153,7 +153,7 @@ var KnockTournament = KnockTournament || {};
         }
 
        // Gets the winning score of a match.
-       async getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback) {
+       async getWinningScoreOfMatch(teamScores, matchScore, finishedMatchCallback) {
            
             return Promise( async (resolve, reject) => {
                 
@@ -216,7 +216,7 @@ var KnockTournament = KnockTournament || {};
        }
 
        // get winning scores asynchronously partially
-       async getMatchWinnerScore(round, matches, finishedMatchCallback) {
+       async getMatchWinnerScores(round, matches, finishedMatchCallback) {
 
            let winnersList = [];
 
@@ -234,10 +234,10 @@ var KnockTournament = KnockTournament || {};
 
            let winnersPromiseList = [];
 
-           for (let i=index; k < i + 11 && k < matches.length; j++) {
+           for (let i=index; i < i + 11 && k < matches.length; i++) {
                let teamScores = this.getTeamScores(matches[i].teamIds);
                let matchScore = this.getMatchData(round, matches[i]);
-               winnersPromiseList .push(this.getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback));
+               winnersPromiseList.push(this.getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback));
            }
        }
 
