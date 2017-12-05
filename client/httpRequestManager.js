@@ -3,7 +3,25 @@
 var KnockoutTournament = KnockoutTournament || {};
 
 (function (KnockoutTournament) {
-    KnockoutTournament.httpRequestManager = class httpRequestManager {
+    KnockoutTournament.HttpRequestManager = class HttpRequestManager {
+
+        // http post request
+        static post(url, data) {
+            
+            const options = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                }
+            };
+
+            if (data) {
+                // add data to the request body
+                options.body = HttpRequestManager._toQueryString(data);
+            }
+
+            return window.fetch(url, options);
+        }
 
         // http get request
         static get(url, params) {
@@ -13,25 +31,8 @@ var KnockoutTournament = KnockoutTournament || {};
             };
 
             if (params) {
-                // add params to the
-                url += "?" + httpRequestManager._toQueryString(params);
-            }
-
-            return window.fetch(url, options);
-        }
-
-        // http post request
-        static post(url, data) {
-
-            const options = {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/x-www-form-urlencoded'
-                }
-            };
-
-            if (data) {
-                options.body = httpRequestManager._toQueryString(data);
+                // add params to the request
+                url += "?" + HttpRequestManager._toQueryString(params);
             }
 
             return window.fetch(url, options);

@@ -19,18 +19,21 @@ var KnockTournament = KnockTournament || {};
         CLIENT_ERROR: 400
     };
 
-    let TournamentError = KnockTournament.AppError;
-    let MESSAGES = KnockTournament.Constants.MESSAGES;
+    let MESSAGES = KnockoutTournament.Constants.MESSAGES;
+    let TournamentError = KnockoutTournament.AppError;
+    let Utils = KnockoutTournament.Utils;
+
+    const asyncListLength = 31;
 
     KnockTournament.TournamentManager = class TournamentManager {
 
-        constructor(teamsPerMatch, numberOfTeams, requestManager) {
+        constructor(teamsPerMatch, numberOfTeams, HttpRequestManager) {
 
             this._teamsPerMatch = teamsPerMatch;
             this._numberOfTeams = numberOfTeams;
             this._tournamentId = null;
-            this._teamsMap = {};
-            this.requestManager = requestManager;
+            this.teamsMap = {};
+            this.HttpRequestManager = HttpRequestManager;
 
         }
 
@@ -55,7 +58,7 @@ var KnockTournament = KnockTournament || {};
 
                 try {
 
-                    let tournamentData = await this.httpRequestManager.post(REQUEST_URL.TOURNAMENT, {
+                    let tournamentData = await this.HttpRequestManager.post(REQUEST_URL.TOURNAMENT, {
                         teamsPerMatch: this._teamsPerMatch,
                         numberOfTeams: this._numberOfTeams,
                     });
@@ -92,7 +95,7 @@ var KnockTournament = KnockTournament || {};
                         return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
                     }
 
-                    let matchData = await this.httpRequestManager.get(REQUEST_URL.MATCH, {
+                    let matchData = await this.HttpRequestManager.get(REQUEST_URL.MATCH, {
                         tournamentId: this._tournamentId,
                         round: round,
                         match: match
@@ -109,7 +112,7 @@ var KnockTournament = KnockTournament || {};
                         return reject(new TournamentError(errorMessage));
                     }
 
-                    return resolve(matchJSON.json());
+                    return resolve(matchJSON.score);
 
                 } catch(exception) {
                     return reject(new TournamentError(MESSAGES.UNKNOWN_ERROR, exception.stack));
@@ -118,26 +121,26 @@ var KnockTournament = KnockTournament || {};
             });
         }
 
-        // get team data
+        // Gets team data
         getTeamData(teamId) {
 
-            return new promise( async (resolve, reject) => {
+            return new Promise( async (resolve, reject) => {
                 try {
 
                     if (this._tournamentId == null) {
                         return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
                     }
 
-                    let teamData = await this.httpRequestManager.get(REQUEST_URL.TEAM, {
+                    let teamData = await this.HttpRequestManager.get(REQUEST_URL.TEAM, {
                         tournamentId: this._tournamentId,
                         teamId: teamId
                     });
 
-                    let teamJSON = await teamdData.json();
+                    let teamJSON = await teamData.json();
 
-                    if (teamdData.status !== HTTP_STATUS_CODES.OK) {
+                    if (teamData.status !== HTTP_STATUS_CODES.OK) {
                         let errorMessage = TournamentManager._getNetworkErrorMessage(
-                            teamdData, teamJSON
+                            teamData, teamJSON
                         );
 
                         return reject(new TournamentError(errorMessage));
@@ -155,7 +158,7 @@ var KnockTournament = KnockTournament || {};
        // Gets the winning score of a match.
        async getWinningScoreOfMatch(teamScores, matchScore, finishedMatchCallback) {
            
-            return Promise( async (resolve, reject) => {
+            return new Promise( async (resolve, reject) => {
                 
                 try {
 
@@ -163,15 +166,15 @@ var KnockTournament = KnockTournament || {};
                         return reject(new TournamentError(MESSAGES.INVALID_TOURNAMENT_ID));
                     }
 
-                    let matchWinningData = await this.httpRequestManager.get(REQUEST_URL.WINNER, {
+                    let matchWinningData = await this.HttpRequestManager.get(REQUEST_URL.WINNER, {
                         tournamentId: this._tournamentId,
                         teamScores: await teamScores,
-                        matchScores: await matchScores
+                        matchScore: await matchScore
                     });
 
-                    let matchWinningDataJSON = winningData.json();
+                    let matchWinningDataJSON = matchWinningData.json();
 
-                    if (winningData.status !== HTTP_STATUS_CODES.OK) {
+                    if (matchWinningData.status !== HTTP_STATUS_CODES.OK) {
                         let errorMessage = TournamentManager._getNetworkErrorMessage(
                             teamdData, teamJSON
                         );
@@ -192,24 +195,24 @@ var KnockTournament = KnockTournament || {};
             });
        }
 
-       // get team scores of a match using promises and populates teamMap to generate next round
+       // gets team scores of a match using promises and populates teamMap to generate next round
        async getTeamScores(teamIds) {
 
            let teamPromiseList = [];
            let teamScoreList = [];
 
-           teamsIds.forEach(teamId => {
-               if (!this._teamsMap.hasOwnProperty(teamId)) {
+           teamIds.forEach(teamId => {
+               if (!this.teamsMap.hasOwnProperty(teamId)) {
                    teamPromiseList.push(this.getTeamData(teamId))
                } else {
-                   teamScoreList.push(this._teamsMap[teamId].score);
+                   teamScoreList.push(this.teamsMap[teamId].score);
                }
            });
 
            // wait till all the promises in the list are resolved
            (await Promise.all(teamPromiseList)).forEach(team => {
                teamScoreList.push(team.score);
-               this._teamsMap[team.teamId] = team
+               this.teamsMap[team.teamId] = team
            });
 
            return teamScoreList;
@@ -220,7 +223,7 @@ var KnockTournament = KnockTournament || {};
 
            let winnersList = [];
 
-           for (let i = 0; i < matches.length; i = i + 11) {
+           for (let i = 0; i < matches.length; i = i + asyncListLength) {
                let asyncWinnerList = await this.getWinnersAsyncList(i, round, matches, finishedMatchCallback);
                winnersList = winnersList.concat(asyncWinnerList);
            }
@@ -234,13 +237,52 @@ var KnockTournament = KnockTournament || {};
 
            let winnersPromiseList = [];
 
-           for (let i=index; i < i + 11 && k < matches.length; i++) {
+           for (let i=index; i < index + asyncListLength && i < matches.length; i++) {
+               let matchScore = this.getMatchData(round, matches[i].match);
                let teamScores = this.getTeamScores(matches[i].teamIds);
-               let matchScore = this.getMatchData(round, matches[i]);
-               winnersPromiseList.push(this.getWiningScoreOfMatch(teamScores, matchScore, finishedMatchCallback));
+
+               winnersPromiseList.push(this.getWinningScoreOfMatch(teamScores, matchScore, finishedMatchCallback));
            }
+
+           //wait till all the promises are solved
+           return Promise.all(winnersPromiseList);
+       }
+
+       // generates matchups for next round
+       getNextRoundMatchUps(winnerScoreList, lastMatchList) {
+           console.log("getNextRoundMatchUps");
+           let nextMatchUpList = [];
+           let sortedWinningScores = winnerScoreList.sort();
+
+           let winnerTeamIdList = lastMatchList.map( match => {
+               let winningTeam = match.teamIds.filter(id => {
+                   return (Utils.binarySearch.call(sortedWinningScores, this.teamsMap[id].score != -1));
+               });
+               return winningTeam[0];
+
+           });
+           console.log(winnerTeamIdList);
+
+           let teamIdGroups = winnerTeamIdList.reduce((rows, currentValue, currentIndex) =>
+                (currentIndex % this._teamsPerMatch == 0
+                    ? rows.push([currentValue])
+                    : rows[rows.length - 1].push(currentValue))
+                && rows, []);
+            console.log(teamIdGroups);
+
+            let matchIndex = 0;
+            nextMatchUpList = teamIdGroups.map(teamGroup => {
+                return {
+                    match: matchIndex++, 
+                    teamIds: teamGroup
+                }
+            });
+            console.log(nextMatchUpList);
+
+            return nextMatchUpList;
+
        }
 
     }
     
-})(KnockTournament);
+})((KnockoutTournament));

@@ -11,7 +11,7 @@ var KnockTournament = KnockTournament || {};
 
         constructor(tournamentManager, tournamentProgressBar) {
 
-            this.torunamentManager = tournamentManager;
+            this.tournamentManager = tournamentManager;
             this.tournamentProgressBar = tournamentProgressBar;
 
         }
@@ -20,39 +20,46 @@ var KnockTournament = KnockTournament || {};
 
             try {
 
-                // Creates a tournament and gets the first round's matches. 
-                let matchUps = await this.torunamentManager.createTournament();
+                // Creates a tournament and gets first round's matches. 
+                let matchUps = await this.tournamentManager.createTournament();
 
                 let round = 0; // (0 - indexed)
-                let winnersScores = [];
-                let winner = "";
+                let winnerScores = [];
+                let winnerName = "";
 
                 this.tournamentProgressBar.init();
 
-                while (winnersScores > 1) {
+                do {
 
                     this.tournamentProgressBar.setStatus(`${MESSAGES.ROUND} ${round}`)
 
-                    // get round's winning scores, after each math is completed update progress bar
-                    winnersScores = await this.tournamentManager.getMatchWinnerScores(round, matchUps, 
-                        this.tournamentProgressBar ? this.tournamentProgressBar.update.bind(this.tournamentProgressBar) : null)
+                    // get round's winning scores, after each match is completed update progress bar
+                    winnerScores = await this.tournamentManager.getMatchWinnerScores(round, matchUps, 
+                        this.tournamentProgressBar ? this.tournamentProgressBar.incrementBlock.bind(this.tournamentProgressBar) : null);
 
                     round++;
+                    
+                    if (winnerScores.length > 1) {
+                        // generate next round matchUps
+                        matchUps = this.tournamentManager.getNextRoundMatchUps(winnerScores, matchUps);
+                    }
+                    
+                } while (winnerScores.length > 1)
 
-                    // get next round matchUps
-                }
+                this.tournamentProgressBar.incrementBlock();
 
+                let winnerId = matchUps[0].teamIds.filter(id => this.tournamentManager.teamsMap[id.score] === winnerScores[0])[0];
+                winnerName = this.tournamentManager.teamsMap[winnerId].name;
 
+                return winnerName;
 
             } catch (exception) {
-                if (exception.name == MESSAGES.APP_ERROR) {
-                    return exception;
-                } else {
-                    return new TournamentError(MESSAGES.UNKNOWN_ERROR);
-                }
+
+                return exception.stack;
+
             }
         }
     }
 
     
-})(KnockTournament);
+})((KnockoutTournament));

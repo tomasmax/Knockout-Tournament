@@ -42,14 +42,6 @@ var KnockoutTournament = KnockoutTournament || {};
     
         }
     
-        // increment multiple blocks
-        incrementMultipleBlocks(blocks) {
-    
-            this.position += blocks;
-            this.render();
-    
-        }
-    
         // render progress
         render() {
             let blocks = "";
@@ -61,8 +53,13 @@ var KnockoutTournament = KnockoutTournament || {};
                     blocks += "□ ";
                 }
             }
+            this.progress.textContent = blocks;
+        }
+
+        clear() {
+            this.body.innerHTML = "";
         }
 
     }
 
-});
+})(KnockoutTournament);

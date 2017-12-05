@@ -1,3 +1,62 @@
 /*
     Edit me.
 */
+
+html {
+    font-family: Helvetica;
+}
+
+h1 {
+    text-align: center;
+}
+
+.container {
+    margin: 25px;
+}
+
+button {
+    border-radius: 10px;
+    margin: 10px 0;
+    background-color: #008000;
+    padding: 17px;
+    font-size: 25px;
+    border: 2px;
+    width: 100%;
+    color: white
+}
+
+input[type=number] {
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px; 
+}
+
+.resultInfoWrapper {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#error {
+    color: red;
+}
+
+#winner {
+    font-size: 25px;
+    color: rgb(63, 58, 58);
+}
+
+#tournamentProgressBar span {
+    display: block;
+    font-size: 20px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#tournamentProgressBar .status {
+    color:rgb(90, 175, 104);
+}
+

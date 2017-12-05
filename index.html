@@ -2,15 +2,39 @@
 <html>
   <head>
     <link rel="stylesheet" href="./client/styles.css">
+
+    <script type="text/javascript" src="./client/utils.js"></script>
+    <script type="text/javascript" src="./client/httpRequestManager.js"></script>
+    <script type="text/javascript" src="./client/tournamentProgressBar.js"></script>
+    <script type="text/javascript" src="./client/tournamentManager.js"></script>
+    <script type="text/javascript" src="./client/tournamentLogic.js"></script>
     <script type="text/javascript" src="./client/client.js"></script>
+
     <title>Knockout Tournament</title>
+
   </head>
+
   <body>
-    <!-- Edit me. -->
-    <!-- For tests to pass, the IDs of the elements below MUST NOT change. -->
-    <input id="teamsPerMatch" placeholder="Teams per match" type="number" />
-    <input id="numberOfTeams" placeholder="Number of teams" type="number" />
-    <button id="start">Start</button>
-    <span id="winner"></span>
+    <div class="container">
+      <!-- Edit me. -->
+      <!-- For tests to pass, the IDs of the elements below MUST NOT change. -->
+      <h1> Knockout Tournament </h1>
+
+      <div class="formWrapper">
+        <input id="teamsPerMatch" placeholder="Teams per match" type="number" />
+        <input id="numberOfTeams" placeholder="Number of teams" type="number" />
+        <button id="start">Start</button>
+      </div>
+
+      <div class="resultInfoWrapper">
+        <span id="winner"></span>
+        <span id="error"></span>
+      </div>
+
+      <div class="progressWrapper">
+        <div id="tournamentProgressBar"></div>
+      </div>
+      
+    </div>
   </body>
 </html>
