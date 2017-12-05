@@ -27,15 +27,17 @@ var KnockTournament = KnockTournament || {};
                 let winnerScores = [];
                 let winnerName = "";
 
-                this.tournamentProgressBar.init();
+                this.tournamentProgressBar ? this.tournamentProgressBar.init() : null;
 
                 do {
 
-                    this.tournamentProgressBar.setStatus(`${MESSAGES.ROUND} ${round}`)
+                    console.log(`Simulating round ${round}`)
 
                     // get round's winning scores, after each match is completed update progress bar
                     winnerScores = await this.tournamentManager.getMatchWinnerScores(round, matchUps, 
                         this.tournamentProgressBar ? this.tournamentProgressBar.incrementBlock.bind(this.tournamentProgressBar) : null);
+
+                    this.tournamentProgressBar.setStatus(`${MESSAGES.ROUND} ${round}`);
 
                     round++;
                     
@@ -45,6 +47,8 @@ var KnockTournament = KnockTournament || {};
                     }
                     
                 } while (winnerScores.length > 1)
+
+                this.tournamentProgressBar.setStatus(`${round-1} ${MESSAGES.ROUND_FINAL}`);
 
                 this.tournamentProgressBar.incrementBlock();
 

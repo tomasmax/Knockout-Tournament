@@ -12,6 +12,7 @@ var KnockoutTournament = KnockoutTournament || {};
         UNKNOWN_ERROR: "Unknown Error",
         INVALID_TOURNAMENT_ID: "The Tournament ID is not valid",
         ROUND: "Simulating Round: ",
+        ROUND_FINAL: "Rounds simulated",
         INVALID_NUMER_OF_TEAMS: "The Number of Teams input is not valid",
         INVALID_TEAMS_PER_MATCH: "The Teams per Match input is not valid",
         INVALID_TEAMS_PER_MATCH_MIN: "The Teams per Match input can't be 1 or less",

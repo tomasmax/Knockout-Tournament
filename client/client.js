@@ -97,7 +97,7 @@ var KnockoutTournament = KnockoutTournament || {};
                 this.startButtonElement.style = 'display:block';
             }
             else if (action == ELEMENT_ACTIONS.DEACTIVATE) {
-                this.startButtonElement.style = 'display:nonce';
+                this.startButtonElement.style = 'display:none';
             }
         }
 
@@ -120,6 +120,7 @@ var KnockoutTournament = KnockoutTournament || {};
                 let tournamentManager = new KnockoutTournament.TournamentManager(this.teamsPerMatchElement.value, this.numberOfTeamsElement.value, KnockoutTournament.HttpRequestManager);
                 let tournamentLogic = new KnockoutTournament.TournamentLogic(tournamentManager, tournamentProgressBar);
 
+                // await till the winner is returned
                 let winner = await tournamentLogic.run();
 
                 this.setWinner(winner);
@@ -127,7 +128,9 @@ var KnockoutTournament = KnockoutTournament || {};
 
             }
             catch (exception) {
+
                 this.errorElement.textContent = `${MESSAGES.ERROR_MSG} ${exception.message}`;
+
                 console.log(exception.stack);
 
                 this.toggleStartButton(ELEMENT_ACTIONS.ACTIVATE);
