@@ -83,11 +83,11 @@ var KnockoutTournament = KnockoutTournament || {};
             }
 
             if (teamsPerMatch <= 1) {
-                throw new TournamentError(`${MESSAGES.INVALID_TEAMS_PER_MATCH_MIN} ${teamsPerMatch}`);
+                throw new TournamentError(`${MESSAGES.INVALID_TEAMS_PER_MATCH_MIN}`);
             }
 
             if (!KnockoutTournament.Utils.isPowerOf(teamsPerMatch, numberOfTeams)) {
-                throw new TournamentError(`${MESSAGES.INVALID_TEAMS_PER_MATCH_POWER} ${teamsPerMatch}`);
+                throw new TournamentError(`${MESSAGES.INVALID_TEAMS_PER_MATCH_POWER}(${teamsPerMatch})`);
             }
 
         }
@@ -129,7 +129,7 @@ var KnockoutTournament = KnockoutTournament || {};
             }
             catch (exception) {
 
-                this.errorElement.textContent = `${MESSAGES.ERROR_MSG} ${exception.message}`;
+                this.errorElement.textContent = `${MESSAGES.ERROR} ${exception.message}`;
 
                 console.log(exception.stack);
 

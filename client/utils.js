@@ -10,14 +10,14 @@ var KnockoutTournament = KnockoutTournament || {};
         APP_ERROR: "App Error",
         NETWORK_ERROR: "Network Error: Status ",
         UNKNOWN_ERROR: "Unknown Error",
-        INVALID_TOURNAMENT_ID: "The Tournament ID is not valid",
+        INVALID_TOURNAMENT_ID: "Tournament ID is not valid",
         ROUND: "Simulating Round: ",
         ROUND_FINAL: "Rounds simulated",
-        INVALID_NUMER_OF_TEAMS: "The Number of Teams input is not valid",
-        INVALID_TEAMS_PER_MATCH: "The Teams per Match input is not valid",
-        INVALID_TEAMS_PER_MATCH_MIN: "The Teams per Match input can't be 1 or less",
-        ERROR: "Error : ",
-        INVALID_TEAMS_PER_MATCH_POWER: "The Number of Teams needs to be a power of Teams per Match"
+        INVALID_NUMER_OF_TEAMS: "Number of Teams input is not valid",
+        INVALID_TEAMS_PER_MATCH: "Teams per Match input is not valid",
+        INVALID_TEAMS_PER_MATCH_MIN: "Teams per Match value must be 2 or higher",
+        ERROR: "Error: ",
+        INVALID_TEAMS_PER_MATCH_POWER: "Number of Teams value needs to be a power of Teams per Match"
     };
 
     // App errors

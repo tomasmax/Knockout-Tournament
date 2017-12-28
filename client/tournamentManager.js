@@ -23,7 +23,7 @@ var KnockTournament = KnockTournament || {};
     let TournamentError = KnockoutTournament.AppError;
     let Utils = KnockoutTournament.Utils;
 
-    const asyncListLength = 31;
+    const asyncListLength = 20;
 
     KnockTournament.TournamentManager = class TournamentManager {
 
@@ -31,8 +31,8 @@ var KnockTournament = KnockTournament || {};
 
             this._teamsPerMatch = teamsPerMatch;
             this._numberOfTeams = numberOfTeams;
-            this._tournamentId = null;
-            this.teamsMap = {};
+            this._tournamentId = null;  
+            this.teamsMap = {}; // teamsMap[teamId] = teamData
             this.HttpRequestManager = HttpRequestManager;
 
         }
@@ -211,14 +211,16 @@ var KnockTournament = KnockTournament || {};
 
            // wait till all the promises in the list are resolved
            (await Promise.all(teamPromiseList)).forEach(team => {
+               // push team score to the array
                teamScoreList.push(team.score);
+               // add or update team in teamsMap
                this.teamsMap[team.teamId] = team
            });
 
            return teamScoreList;
        }
 
-       // get winning scores asynchronously partially
+       // get winning scores asynchronously in groups of ${asyncListLength} to improve performace when numberOfTeams is large
        async getMatchWinnerScores(round, matches, finishedMatchCallback) {
 
            let winnersList = [];
@@ -232,7 +234,7 @@ var KnockTournament = KnockTournament || {};
 
        }
 
-       // gets a portion of Winners asynchronously
+       // gets a group of Winners asynchronously, 
        async getWinnersAsyncList(index, round, matches, finishedMatchCallback) {
 
            let winnersPromiseList = [];
@@ -252,7 +254,7 @@ var KnockTournament = KnockTournament || {};
        getNextRoundMatchUps(winnerScoreList, lastMatchList) {
            console.log("getNextRoundMatchUps");
            let nextMatchUpList = [];
-           let sortedWinningScores = winnerScoreList.sort();
+           const sortedWinningScores = winnerScoreList.sort((a, b) => a - b);
 
            let winnerTeamIdList = lastMatchList.map( match => {
                let winningTeam = match.teamIds.filter(id => {
@@ -273,7 +275,7 @@ var KnockTournament = KnockTournament || {};
             let matchIndex = 0;
             nextMatchUpList = teamIdGroups.map(teamGroup => {
                 return {
-                    match: matchIndex++, 
+                    match: matchIndex++,
                     teamIds: teamGroup
                 }
             });

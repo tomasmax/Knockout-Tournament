@@ -25,7 +25,6 @@ var KnockTournament = KnockTournament || {};
 
                 let round = 0; // (0 - indexed)
                 let winnerScores = [];
-                let winnerName = "";
 
                 this.tournamentProgressBar ? this.tournamentProgressBar.init() : null;
 
@@ -33,11 +32,11 @@ var KnockTournament = KnockTournament || {};
 
                     console.log(`Simulating round ${round}`)
 
+                    this.tournamentProgressBar.setStatus(`${MESSAGES.ROUND} ${round}`);
+
                     // get round's winning scores, after each match is completed update progress bar
                     winnerScores = await this.tournamentManager.getMatchWinnerScores(round, matchUps, 
                         this.tournamentProgressBar ? this.tournamentProgressBar.incrementBlock.bind(this.tournamentProgressBar) : null);
-
-                    this.tournamentProgressBar.setStatus(`${MESSAGES.ROUND} ${round}`);
 
                     round++;
                     
@@ -48,12 +47,12 @@ var KnockTournament = KnockTournament || {};
                     
                 } while (winnerScores.length > 1)
 
-                this.tournamentProgressBar.setStatus(`${round-1} ${MESSAGES.ROUND_FINAL}`);
+                this.tournamentProgressBar.setStatus(`${round} ${MESSAGES.ROUND_FINAL}`);
 
                 this.tournamentProgressBar.incrementBlock();
 
-                let winnerId = matchUps[0].teamIds.filter(id => this.tournamentManager.teamsMap[id.score] === winnerScores[0])[0];
-                winnerName = this.tournamentManager.teamsMap[winnerId].name;
+                const winnerId = matchUps[0].teamIds.filter(id => this.tournamentManager.teamsMap[id.score] === winnerScores[0])[0];
+                const winnerName = this.tournamentManager.teamsMap[winnerId].name;
 
                 return winnerName;
 
